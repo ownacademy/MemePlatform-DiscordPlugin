@@ -1,4 +1,4 @@
-﻿using Meme_Platform_Discord_Plugin.Models;
+﻿using Meme_Platform.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,6 +8,6 @@ namespace Meme_Platform_Discord_Plugin.Services
 {
     public interface IRequestService
     {
-        public Task ExecutePost(string WebhookUrl, DiscordWebhookRequestModel requestModel);
+        public Task ExecutePost(string webhookUrl, PostModel payload);
     }
 }
