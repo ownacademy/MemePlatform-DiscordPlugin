@@ -1,4 +1,5 @@
 ﻿using Meme_Platform.IL;
+using Meme_Platform_Discord_Plugin.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Meme_Platform_Discord_Plugin
@@ -7,6 +8,7 @@ namespace Meme_Platform_Discord_Plugin
     {
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<IRequestService, WebhookRequestService>();
         }
 
         public string GetDescription()

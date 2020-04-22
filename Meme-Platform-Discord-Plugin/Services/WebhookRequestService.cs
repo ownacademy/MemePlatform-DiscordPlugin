@@ -1,4 +1,5 @@
-﻿using Meme_Platform.Core.Models;
+﻿using Meme_Platform.Core;
+using Meme_Platform.Core.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Meme_Platform_Discord_Plugin.Services
 {
-    internal class WebhookRequestService : IRequestService
+    public class WebhookRequestService : IRequestService
     {
         private readonly ILogger<PostEventHandler> _logger;
 
@@ -18,7 +19,7 @@ namespace Meme_Platform_Discord_Plugin.Services
             _logger = logger;
         }
 
-        public async Task ExecutePost(string wenhookUrl, PostModel payload)
+        public async Task ExecutePost(string webhookUrl, PostModel payload, UIConfig uIConfig)
         {
             try
             {
@@ -26,19 +27,21 @@ namespace Meme_Platform_Discord_Plugin.Services
                 
                 using (var content = new MultipartFormDataContent())
                 {
-                    content.Add(new StringContent(payload.Owner.Nickname), "username");
-                    content.Add(new StringContent(payload.Owner.ProfilePictureUrl), "avatar_url");
+                    content.Add(new StringContent(uIConfig.SiteName), "username");
+                    content.Add(new StringContent(uIConfig.SiteLogo), "avatar_url");
                     content.Add(new StringContent(payload.Title), "content");
                     content.Add(new StreamContent(new MemoryStream(payload.Content.Data)), "file", $"file.{payload.Content.Extension}");
 
-                    client.PostAsync(wenhookUrl, content).GetAwaiter().GetResult();
+                    await client.PostAsync(webhookUrl, content);
+
+                    client.Dispose();
                 };
 
-                //_logger.LogInformation("The message was succesfully send to the discord channel.");
+                _logger.LogInformation("The message was succesfully send to the discord channel.");
             }
             catch (Exception ex)
             {
-                //_logger.LogError($"The following message error has occurred: {ex.Message}.");
+                _logger.LogError($"The following message error has occurred: {ex.Message}.");
             }
 
         }
