@@ -1,5 +1,7 @@
+using Meme_Platform.Core;
 using Meme_Platform.Core.Models;
 using Meme_Platform_Discord_Plugin;
+using Meme_Platform_Discord_Plugin.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -11,31 +13,32 @@ namespace Discord_Webhook_Test
     public class DiscordWebhookTest
     {
         private Mock<IConfiguration> _configuration;
+        private IRequestService _requestService;
         private Mock<ILogger<PostEventHandler>> _logger;
 
         private PostModel payload = new PostModel { 
-            Title = "Test title",
-            Owner = new ProfileModel { 
-                ProfilePictureUrl = "https://giantbomb1.cbsistatic.com/uploads/square_small/8/87790/3068872-doom.png",
-                Nickname = "Doomguy"
-            },
+            Title = "Discord Plugin",
             Content = new ContentModel { 
-                Data = new HttpClient().GetAsync("https://cdn.mos.cms.futurecdn.net/8s4zT24dY2bQUcVXwpipxL.jpg").Result.Content.ReadAsByteArrayAsync().Result,
+                Data = new HttpClient().GetAsync("NOTE: URL to image you want to download and convert as bynary").Result.Content.ReadAsByteArrayAsync().Result,
                 Extension = "jpeg"
             }
         };
+
         [SetUp]
         public void Setup()
         {
             _configuration = new Mock<IConfiguration>();
-            _configuration.SetupGet(x => x[It.Is<string>(s => s == "DiscordPlugin:WebhookUrl")]).Returns("https://discordapp.com/api/webhooks/701482359203299329/HhCaCMlY9kOXEEpJ0jIjuiLRxE3Cyqm8Q3I4W7C5b6AVENqp_jZDWkYBY68Nd2jIp5oh");
+            _configuration.SetupGet(x => x[It.Is<string>(s => s == "DiscordPlugin:WebhookUrl")]).Returns("NOTE: Webhook url to discord channel");
+            _configuration.SetupGet(x => x[It.Is<string>(s => s == "UI:Name")]).Returns("NOTE: Name you want to see displayed in discord");
+            _configuration.SetupGet(x => x[It.Is<string>(s => s == "UI:Logo")]).Returns("NOTE: Logo that you want displayed");
             _logger = new Mock<ILogger<PostEventHandler>>();
+            _requestService = new WebhookRequestService(_logger.Object);
         }
 
         [Test]
         public void PostToDiscordTest()
         {
-            new PostEventHandler(_logger.Object, _configuration.Object).Execute(payload);
+            new PostEventHandler(_logger.Object, _configuration.Object, _requestService, new UIConfig(_configuration.Object)).Execute(payload);
         }
     }
 }
